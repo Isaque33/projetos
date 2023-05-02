@@ -5,11 +5,13 @@ import os
 from random import randrange, choice
 
 pygame.init()
-pygame.mixer.init()  # Inicia o mixer
+pygame.mixer.init()
 
-diretório_principal = os.path.dirname(__file__)  # Pega o caminho do diretório Aulas 14-21 - Dino Game
-diretório_imagens = os.path.join(diretório_principal, 'Imagens')  # coloca o caminho da pasta Imagens na variável diretório_imagens
-diretório_sons = os.path.join(diretório_principal, 'Sons')  # coloca o caminho da pasta Sonss na variável diretório_sons
+diretório_principal = os.path.dirname(__file__)  # Pega o caminho do diretório
+# coloca o caminho da pasta Imagens na variável diretório_imagens
+diretório_imagens = os.path.join(diretório_principal, 'Imagens')
+# coloca o caminho da pasta Sonss na variável diretório_sons
+diretório_sons = os.path.join(diretório_principal, 'Sons')
 
 LARGURA = 640
 ALTURA = 480
@@ -20,13 +22,15 @@ tela = pygame.display.set_mode((LARGURA, ALTURA))
 
 pygame.display.set_caption('Dino Game')
 
-sprite_sheet = pygame.image.load(os.path.join(diretório_imagens, 'dinoSpritesheet.png')).convert_alpha(tela)
-# Se a imagem possuir transparência, conserva a transparência, ignorando o fundo da imagem(convert.aplha)
+sprite_sheet = pygame.image.load(os.path.join(
+    diretório_imagens, 'dinoSpritesheet.png')).convert_alpha(tela)
 
-som_colisão = pygame.mixer.Sound(os.path.join(diretório_sons, 'death_sound.wav'))
+som_colisão = pygame.mixer.Sound(
+    os.path.join(diretório_sons, 'death_sound.wav'))
 som_colisão.set_volume(1)
 
-som_pontuação = pygame.mixer.Sound(os.path.join(diretório_sons, 'score_sound.wav'))
+som_pontuação = pygame.mixer.Sound(
+    os.path.join(diretório_sons, 'score_sound.wav'))
 som_pontuação.set_volume(1)
 
 colidiu = False
@@ -36,6 +40,7 @@ escolha_obstáculo = choice([0, 1])
 pontos = 0
 
 velocidade_jogo = 10
+
 
 def exibe_mensagem(msg, tamanho, cor):
     fonte = pygame.font.SysFont('comicsansms', tamanho, True, False)
@@ -59,21 +64,24 @@ def reiniciar_jogo():
 class Dino(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.som_pulo = pygame.mixer.Sound(os.path.join(diretório_sons, 'jump_sound.wav'))
+        self.som_pulo = pygame.mixer.Sound(
+            os.path.join(diretório_sons, 'jump_sound.wav'))
         self.som_pulo.set_volume(1)
         self.imagens_dinossauro = []
         c = 0
         for i in range(3):
             # Recortando os 3 primeiros frames da sprite sheet
-            img = sprite_sheet.subsurface((i*32,0), (32, 32))  # Guarda a imagem do frame i da sprite sheet na variável img
+            # Guarda a imagem do frame i da sprite sheet na variável img
+            img = sprite_sheet.subsurface((i*32, 0), (32, 32))
             img = pygame.transform.scale(img, (32*3, 32*3))
             self.imagens_dinossauro.append(img)
 
         self.index_lista = 0
         self.image = self.imagens_dinossauro[self.index_lista]
         self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)  # Cria a máscara do dinossauro
-        self.pos_y_inicial = ALTURA - 64 - 96//2  # Posiciona o dinossauro sobre o chão, pois 64 é o tamanho do chão e 96//2 é o canto superior esquerdo do dino
+        self.mask = pygame.mask.from_surface(
+            self.image)  # Cria a máscara do dinossauro
+        self.pos_y_inicial = ALTURA - 64 - 96//2  # Posiciona o dinossauro sobre o chão
         self.rect.center = (100, ALTURA - 64)
         self.pulo = False
 
@@ -101,30 +109,34 @@ class Dino(pygame.sprite.Sprite):
 class Nuvens(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = sprite_sheet.subsurface((7*32,0), (32, 32))
+        self.image = sprite_sheet.subsurface((7*32, 0), (32, 32))
         self.image = pygame.transform.scale(self.image, (32*3, 32*3))
         self.rect = self.image.get_rect()
         self.rect.y = randrange(50, 200, 50)
         self.rect.x = LARGURA - randrange(30, 300, 90)
 
     def update(self):
-        if self.rect.topright[0] < 0:  # Se a posição x do topo direito do retângulo da núvem sumir da tela:
+        # Se a posição x do topo direito do retângulo da núvem sumir da tela:
+        if self.rect.topright[0] < 0:
             self.rect.x = LARGURA
-            self.rect.y = randrange(50, 200, 50)  # Move a nuvem para a esquerda
+            # Move a nuvem para a esquerda
+            self.rect.y = randrange(50, 200, 50)
         self.rect.x -= velocidade_jogo
 
 
 class Chão(pygame.sprite.Sprite):
     def __init__(self, pos_x):
         pygame.sprite.Sprite.__init__(self)
-        self.image = sprite_sheet.subsurface((6*32,0), (32, 32))
+        self.image = sprite_sheet.subsurface((6*32, 0), (32, 32))
         self.image = pygame.transform.scale(self.image, (32*2, 32*2))
         self.rect = self.image.get_rect()
         self.rect.y = ALTURA - 64
-        self.rect.x = pos_x * 64 # Posição x da sprite é a posição passada como parametro * 64(tamanho do chão)
+        # Posição x da sprite é a posição passada como parametro * 64(tamanho do chão)
+        self.rect.x = pos_x * 64
 
     def update(self):
-        if self.rect.topright[0] < 0:  # Se a posição x do topo direito do retângulo do chão sumir da tela:
+        # Se a posição x do topo direito do retângulo do chão sumir da tela:
+        if self.rect.topright[0] < 0:
             self.rect.x = LARGURA
         self.rect.x -= 10  # Move o chão para a esquerda
 
@@ -132,10 +144,11 @@ class Chão(pygame.sprite.Sprite):
 class Cacto(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = sprite_sheet.subsurface((5*32,0), (32, 32))
+        self.image = sprite_sheet.subsurface((5*32, 0), (32, 32))
         self.image = pygame.transform.scale(self.image, (32*2, 32*2))
         self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)  # Cria a máscara do cacto
+        self.mask = pygame.mask.from_surface(
+            self.image)  # Cria a máscara do cacto
         self.escolha = escolha_obstáculo
         self.rect.center = (LARGURA, ALTURA - 64)
         self.rect.x = LARGURA
@@ -175,6 +188,7 @@ class DinoVoador(pygame.sprite.Sprite):
             self.index_lista += 0.25
             self.image = self.imagens_dinossauro[int(self.index_lista)]
 
+
 todas_as_sprites = pygame.sprite.Group()
 dino = Dino()
 todas_as_sprites.add(dino)
@@ -184,7 +198,8 @@ for i in range(4):
     todas_as_sprites.add(nuvem)
 
 for i in range(LARGURA//64+8):  # Criando 18 chãos
-    chão = Chão(i)  # Cria a instancia chão passando como parametro i, que vai ser multiplicado por 64
+    # Cria a instancia chão passando como parametro i, que vai ser multiplicado por 64
+    chão = Chão(i)
     todas_as_sprites.add(chão)
 
 cacto = Cacto()
@@ -216,8 +231,10 @@ while True:
             if event.key == K_r and colidiu == True:
                 reiniciar_jogo()
 
-    colisões = pygame.sprite.spritecollide(dino, grupo_obstáculos, False, pygame.sprite.collide_mask)  # Guarda o comando da colisão entre 2 sprites
-    
+    # Guarda o comando da colisão entre 2 sprites
+    colisões = pygame.sprite.spritecollide(
+        dino, grupo_obstáculos, False, pygame.sprite.collide_mask)
+
     todas_as_sprites.draw(tela)
 
     if cacto.rect.topright[0] <= 0 or dino_voador.rect.topright[0] <= 0:
@@ -249,5 +266,5 @@ while True:
             velocidade_jogo += 1
 
     tela.blit(texto_pontos, (520, 30))
-    
+
     pygame.display.flip()
